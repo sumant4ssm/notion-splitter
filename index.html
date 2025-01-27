@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Notion Page Splitter (Safe Mode)</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <script src="splitter.js" defer></script>
+    <script type="module" src="splitter.js"></script>
     <style>
         .content-preview {
             max-height: 0;
@@ -13,7 +13,7 @@
             transition: max-height 0.3s ease-out;
         }
         .content-preview.expanded {
-            max-height: 2000px;
+            max-height: none;
             transition: max-height 0.5s ease-in;
         }
     </style>

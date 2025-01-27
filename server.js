@@ -34,18 +34,7 @@ app.get('/api/notion/blocks/:blockId/children', async (req, res) => {
             page_size: 100
         });
 
-        // Fetch additional data for tables and other blocks with children
-        const enrichedResults = await Promise.all(response.results.map(async (block) => {
-            if (block.type === 'table') {
-                const children = await notion.blocks.children.list({
-                    block_id: block.id
-                });
-                return { ...block, children: children.results };
-            }
-            return block;
-        }));
-
-        response.results = enrichedResults;
+        console.log(`Fetched ${response.results.length} blocks for ${blockId}`);
         res.json(response);
     } catch (error) {
         console.error('Error fetching blocks:', error);
@@ -56,22 +45,32 @@ app.get('/api/notion/blocks/:blockId/children', async (req, res) => {
 // Create page
 app.post('/api/notion/pages', async (req, res) => {
     try {
-        const { parent, properties, children } = req.body;
+        const { parent, properties } = req.body;
         const page = await notion.pages.create({
             parent,
             properties
         });
-
-        if (children && children.length > 0) {
-            await notion.blocks.children.append({
-                block_id: page.id,
-                children: children
-            });
-        }
-
         res.json(page);
     } catch (error) {
         console.error('Error creating page:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Append blocks to a page
+app.patch('/api/notion/blocks/:blockId/children', async (req, res) => {
+    try {
+        const { blockId } = req.params;
+        const { children } = req.body;
+        
+        const response = await notion.blocks.children.append({
+            block_id: blockId,
+            children: children
+        });
+        
+        res.json(response);
+    } catch (error) {
+        console.error('Error appending blocks:', error);
         res.status(500).json({ error: error.message });
     }
 });
